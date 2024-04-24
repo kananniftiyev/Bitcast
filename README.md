@@ -17,6 +17,8 @@ Soon...
 - [ ] Implement customizable settings for backup frequency and retention policies
 - [ ] Enable configuration of designated folders and servers
 - [ ] Database for recording changes ect
+- [ ] CLI Interface
+- [ ] Auth System.
 
 ### Additional Features
 
