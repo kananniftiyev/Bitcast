@@ -15,5 +15,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	newDB.CreateNewUser()
+	_ = newDB
 }
