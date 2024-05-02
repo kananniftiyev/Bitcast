@@ -2,21 +2,27 @@ package main
 
 import (
 	"fileguard/internal/server"
+	"fmt"
+	"github.com/joho/godotenv"
 	"log"
-	filemonitor "fileguard/internal/file"
-	"github.com/kardianos/service"
-	"log"
-	"os"
 )
 
 // Change folder path to test.
 const folderPath = `C:\Users\kenan\Desktop\test`
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
 	//auth.LoginViaGoogle()
 
-	err := server.UploadFile("C:/Users/kenan/Documents/GitHub/fileguard/internal/server/test.txt", "asd")
+	/*err := server.UploadFile("C:/Users/kenan/Documents/GitHub/fileguard/internal/server/test.txt", "asd")
 	if err != nil {
 		log.Println(err)
+	}*/
+
+	err := server.DownloadAllFiles("", "C:/Users/kenan/Documents/GitHub/fileguard")
+	if err != nil {
+		fmt.Println(err)
 	}
 }

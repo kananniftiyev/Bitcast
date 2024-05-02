@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 )
 
@@ -15,8 +16,8 @@ import (
 
 var GoogleOauthConfig = &oauth2.Config{
 	RedirectURL:  "http://localhost:8080/callback",
-	ClientID:     "1004356047315-otq33mfc9opfgkcp7mjlv3lheluuuu3p.apps.googleusercontent.com",
-	ClientSecret: "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",
+	ClientID:     os.Getenv("GOOGLE_AUTH_CLIENT_ID"),
+	ClientSecret: os.Getenv("GOOGLE_AUTH_SECRET_KEY"),
 	Scopes:       []string{"openid", "email", "profile"},
 	Endpoint:     google.Endpoint,
 }
