@@ -68,6 +68,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 	fmt.Fprintf(w, "User info obtained successfully")
 }
 
+// TODO: Fix This fully.
 func LoginViaGoogle() {
 	// Set up HTTP server to handle callback
 	var wg sync.WaitGroup
@@ -93,3 +94,5 @@ func LoginViaGoogle() {
 
 	fmt.Printf("Go to the following link in your browser: \n%v\n", authURL)
 }
+
+// TODO: Add Session Management

@@ -1,6 +1,9 @@
 package main
 
-import "fileguard/internal/auth"
+import (
+	"fileguard/internal/server"
+	"log"
+)
 
 // Change folder path to test.
 const folderPath = `C:\Users\kenan\Desktop\test`
@@ -14,6 +17,10 @@ func main() {
 
 	_ = newDB*/
 
-	auth.LoginViaGoogle()
+	//auth.LoginViaGoogle()
 
+	err := server.UploadFile("C:/Users/kenan/Documents/GitHub/fileguard/internal/server/test.txt", "asd")
+	if err != nil {
+		log.Println(err)
+	}
 }
