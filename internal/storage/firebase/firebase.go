@@ -5,6 +5,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"errors"
+	"fileguard/utils"
 	firebase "firebase.google.com/go"
 	"fmt"
 	"google.golang.org/api/iterator"
@@ -22,13 +23,21 @@ import (
 
 const maxFolderSize = 200 * 1024 * 1024
 
-func initStorage() (*storage.BucketHandle, error) {
+type Storage struct {
+	Bucket  *storage.BucketHandle
+	Context context.Context
+}
+
+// TODO: This code is same as database init. Fix it.
+func NewStorage() (*Storage, error) {
 	config := &firebase.Config{
 		StorageBucket: "fileguard-cf4d3.appspot.com",
 	}
 
-	opt := option.WithCredentialsFile("C:/Users/kenan/Documents/GitHub/fileguard/fileguard.json")
-	app, err := firebase.NewApp(context.Background(), config, opt)
+	ctx := context.Background()
+
+	opt := option.WithCredentialsFile(utils.FirebaseCredentialsFile)
+	app, err := firebase.NewApp(ctx, config, opt)
 	if err != nil {
 		return nil, err
 	}
@@ -43,21 +52,15 @@ func initStorage() (*storage.BucketHandle, error) {
 		return nil, err
 	}
 
-	return bucket, nil
+	return &Storage{Bucket: bucket, Context: ctx}, nil
 }
 
 // TODO: Detect file content difference.
 // TODO: Encode user infos from Google OAuth2
-func UploadFile(localFilePath string, userToken string) error {
-	bucket, err := initStorage()
-	if err != nil {
-		return err
-	}
-	ctx := context.Background()
-
+func (s *Storage) UploadFile(localFilePath string, userToken string) error {
 	folderPath := "x"
 
-	totalFolderSize, err := GetFolderSize(bucket, folderPath, ctx)
+	totalFolderSize, err := s.GetFolderSize(folderPath)
 
 	if err != nil {
 		return err
@@ -84,7 +87,7 @@ func UploadFile(localFilePath string, userToken string) error {
 	dst := "y/" + file.Name()
 
 	// Create a writer
-	w := bucket.Object(dst).NewWriter(ctx)
+	w := s.Bucket.Object(dst).NewWriter(s.Context)
 
 	// Write the content to the writer
 	if _, err := w.Write(content); err != nil {
@@ -101,15 +104,8 @@ func UploadFile(localFilePath string, userToken string) error {
 }
 
 // TODO: Redesign this better.
-func DownloadFile(objectPath string, localPath string) error {
-	bucket, err := initStorage()
-
-	if err != nil {
-		println(err)
-	}
-
-	ctx := context.Background()
-	rc, err := bucket.Object(objectPath).NewReader(ctx)
+func (s *Storage) DownloadFile(objectPath string, localPath string) error {
+	rc, err := s.Bucket.Object(objectPath).NewReader(s.Context)
 	if err != nil {
 		return err
 	}
@@ -130,17 +126,12 @@ func DownloadFile(objectPath string, localPath string) error {
 	return nil
 }
 
-func DownloadAllFiles(folderPath string, localPath string) error {
+func (s *Storage) DownloadAllFiles(folderPath string, localPath string) error {
 	if folderPath == "" {
 		return errors.New("You should add Folder Path")
 	}
 
-	bucket, err := initStorage()
-	if err != nil {
-		return err
-	}
-
-	it := bucket.Objects(context.Background(), &storage.Query{Prefix: folderPath})
+	it := s.Bucket.Objects(context.Background(), &storage.Query{Prefix: folderPath})
 
 	for {
 		objs, err := it.Next()
@@ -153,7 +144,7 @@ func DownloadAllFiles(folderPath string, localPath string) error {
 		}
 		fmt.Println(objs.Name)
 		fileDir := filepath.Join(localPath, filepath.Base(objs.Name))
-		err = DownloadFile(objs.Name, fileDir)
+		err = s.DownloadFile(objs.Name, fileDir)
 		if err != nil {
 			return err
 		}
@@ -165,9 +156,9 @@ func DownloadAllFiles(folderPath string, localPath string) error {
 
 }
 
-func GetFolderSize(bucket *storage.BucketHandle, folderPathInStorage string, ctx context.Context) (int64, error) {
+func (s *Storage) GetFolderSize(folderPathInStorage string) (int64, error) {
 	var totalFolderSize int64
-	it := bucket.Objects(ctx, &storage.Query{Prefix: folderPathInStorage})
+	it := s.Bucket.Objects(s.Context, &storage.Query{Prefix: folderPathInStorage})
 
 	for {
 		objAttrs, err := it.Next()

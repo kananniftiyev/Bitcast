@@ -5,6 +5,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"errors"
+	"fileguard/utils"
 	firebase "firebase.google.com/go"
 	"fmt"
 	"github.com/google/uuid"
@@ -24,7 +25,7 @@ type Database struct {
 
 func NewDatabase() (*Database, error) {
 	ctx := context.Background()
-	sa := option.WithCredentialsFile("C:/Users/kenan/Documents/GitHub/fileguard/fileguard.json")
+	sa := option.WithCredentialsFile(utils.FirebaseCredentialsFile)
 	conf := &firebase.Config{ProjectID: "fileguard-cf4d3"}
 	app, err := firebase.NewApp(ctx, conf, sa)
 	if err != nil {

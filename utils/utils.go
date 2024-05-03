@@ -13,6 +13,10 @@ import (
 	"github.com/google/uuid" // Import package for generating UUIDs
 )
 
+// Const variables
+const FirebaseCredentialsFile = "C:/Users/kenan/Documents/GitHub/fileguard/fileguard.json"
+
+// Custom Errors
 var ErrUserAlreadyExists = errors.New("User Already exists")
 
 // Token represents an authentication token
