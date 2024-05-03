@@ -1,3 +1,4 @@
+// Package firebase provides functionalities to interact with Firebase services such as Firestore and Storage.
 package firebase
 
 import (

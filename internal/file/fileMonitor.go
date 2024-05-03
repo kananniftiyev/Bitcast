@@ -1,3 +1,4 @@
+// Package provides codes to check files and folders.
 package filemonitor
 
 import (

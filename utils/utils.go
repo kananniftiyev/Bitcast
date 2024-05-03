@@ -1,3 +1,4 @@
+// Package utils provide common codes in project.
 package utils
 
 import (

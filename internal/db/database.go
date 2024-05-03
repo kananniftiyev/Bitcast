@@ -1,3 +1,4 @@
+// Package db provides functionalities to interact with Firestore database.
 package db
 
 import (
