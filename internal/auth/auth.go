@@ -105,7 +105,15 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 func LoginViaGoogle() {
 	token, err := utils.LoadToken()
 	if err == nil {
-		log.Fatal("Already Logged in")
+		if !utils.CheckExpirationDate(token) {
+			log.Fatal("Already Logged in")
+		} else {
+			err = utils.RemoveTokenFile()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
 	}
 	_ = token
 	// Set up HTTP storage to handle callback

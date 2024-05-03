@@ -54,7 +54,6 @@ func SaveToken(token *Token) error {
 		return err
 	}
 
-	// Todo: change this to docs
 	return ioutil.WriteFile(filename, data, 0644)
 }
 
@@ -64,7 +63,6 @@ func LoadToken() (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Todo: change this to docs
 	filename := filepath.Join(dir, "save_data.json")
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -96,4 +94,34 @@ func removeHyphens(s string) string {
 		}
 	}
 	return result
+}
+
+func CheckExpirationDate(token *Token) bool {
+	now := time.Now()
+
+	return now.After(token.Expiration)
+}
+
+func RemoveTokenFile() error {
+	dir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	filename := filepath.Join(dir, "save_data.json")
+
+	// Check if the file exists before attempting to remove it
+	if _, err := os.Stat(filename); err != nil {
+		if os.IsNotExist(err) {
+			return nil // File doesn't exist, nothing to remove
+		}
+		return err // Other error occurred, return it
+	}
+
+	// Attempt to remove the file
+	err = os.Remove(filename)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
