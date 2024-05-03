@@ -3,6 +3,7 @@ package db
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"errors"
 	firebase "firebase.google.com/go"
 	"fmt"
 	"github.com/google/uuid"
@@ -20,9 +21,9 @@ type Database struct {
 	ctx    context.Context
 }
 
-func NewDatabase(projectID string) (*Database, error) {
+func NewDatabase() (*Database, error) {
 	ctx := context.Background()
-	sa := option.WithCredentialsFile("C:/Users/kenan/Documents/GitHub/fileguard/internal/db/fileguard.json")
+	sa := option.WithCredentialsFile("C:/Users/kenan/Documents/GitHub/fileguard/fileguard.json")
 	conf := &firebase.Config{ProjectID: "fileguard-cf4d3"}
 	app, err := firebase.NewApp(ctx, conf, sa)
 	if err != nil {
@@ -38,16 +39,24 @@ func NewDatabase(projectID string) (*Database, error) {
 
 }
 
-func (db *Database) CreateNewUser(username, email, hashed_password string) {
+func (db *Database) CreateNewUser(username, email, hashed_password string) error {
+	query := db.Client.Collection("Users").Where("email", "==", email).Limit(1)
+	iter := query.Documents(context.Background())
+	defer iter.Stop()
+
+	_, err := iter.Next()
+	if err != iterator.Done {
+		return nil
+	}
+
 	if !emailRegex.MatchString(email) {
-		log.Fatal("Invalid email address")
-		return
+		return errors.New("Invalid email address")
 	}
 
 	currentTime := time.Now()
 	userID := uuid.New().String()
 
-	_, _, err := db.Client.Collection("Users").Add(db.ctx, map[string]interface{}{
+	_, _, err = db.Client.Collection("Users").Add(db.ctx, map[string]interface{}{
 		"user_id":       userID,
 		"username":      username,
 		"email":         email,
@@ -56,8 +65,10 @@ func (db *Database) CreateNewUser(username, email, hashed_password string) {
 	})
 
 	if err != nil {
-		log.Fatal("Fail")
+		return err
 	}
+
+	return nil
 }
 
 func (db *Database) GetUserByID(userID string) (map[string]interface{}, error) {

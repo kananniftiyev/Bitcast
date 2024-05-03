@@ -2,10 +2,13 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
+	"fileguard/internal/db"
+	"fileguard/utils"
 	"fmt"
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -14,19 +17,33 @@ import (
 
 // Build Google OAuth2.
 
-var GoogleOauthConfig = &oauth2.Config{
-	RedirectURL:  "http://localhost:8080/callback",
-	ClientID:     os.Getenv("GOOGLE_AUTH_CLIENT_ID"),
-	ClientSecret: os.Getenv("GOOGLE_AUTH_SECRET_KEY"),
-	Scopes:       []string{"openid", "email", "profile"},
-	Endpoint:     google.Endpoint,
+var GoogleOauthConfig *oauth2.Config
+
+func init() {
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
+	// Initialize Google OAuth2 configuration
+	GoogleOauthConfig = &oauth2.Config{
+		RedirectURL:  "http://localhost:8080/callback",
+		ClientID:     os.Getenv("GOOGLE_AUTH_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_AUTH_SECRET_KEY"),
+		Scopes:       []string{"openid", "email", "profile"},
+		Endpoint:     google.Endpoint,
+	}
 }
 
 type UserInfo struct {
-	Email    string
-	Name     string
-	Picture  string
-	Verified bool
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Name          string `json:"name"`
+	GivenName     string `json:"given_name"`
+	FamilyName    string `json:"family_name"`
+	Picture       string `json:"picture"`
+	Locale        string `json:"locale"`
 }
 
 func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) {
@@ -55,15 +72,29 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		http.Error(w, "Unable to read response body", http.StatusInternalServerError)
-		log.Fatalf("Unable to read response body: %v", err)
+	var userInfo UserInfo
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		http.Error(w, "Unable to parse user info response", http.StatusInternalServerError)
+		fmt.Printf("Unable to parse user info response: %v\n", err)
 		return
 	}
 
-	fmt.Println("Response from userinfo endpoint:")
-	fmt.Println(string(body))
+	db, err := db.NewDatabase()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = db.CreateNewUser(userInfo.GivenName, userInfo.Email, "123")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	createdToken := utils.GenerateToken(userInfo.ID)
+	err = utils.SaveToken(createdToken)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Respond to the request
 	fmt.Fprintf(w, "User info obtained successfully")
@@ -71,7 +102,12 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 
 // TODO: Fix This fully.
 func LoginViaGoogle() {
-	// Set up HTTP server to handle callback
+	token, err := utils.LoadToken()
+	if err == nil {
+		log.Fatal("Already Logged in")
+	}
+	_ = token
+	// Set up HTTP storage to handle callback
 	var wg sync.WaitGroup
 	wg.Add(1)
 	defer wg.Wait()
@@ -86,7 +122,7 @@ func LoginViaGoogle() {
 	srv := &http.Server{Addr: ":8080"}
 	go func() {
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatalf("Failed to start HTTP server: %v", err)
+			log.Fatalf("Failed to start HTTP storage: %v", err)
 		}
 	}()
 
@@ -95,5 +131,3 @@ func LoginViaGoogle() {
 
 	fmt.Printf("Go to the following link in your browser: \n%v\n", authURL)
 }
-
-// TODO: Add Session Management

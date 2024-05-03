@@ -1,4 +1,4 @@
-package server
+package firebase
 
 import (
 	"cloud.google.com/go/storage"
@@ -45,8 +45,9 @@ func initStorage() (*storage.BucketHandle, error) {
 	return bucket, nil
 }
 
+// TODO: Detect file content difference.
 // TODO: Encode user infos from Google OAuth2
-func UploadFile(filePath string, userToken string) error {
+func UploadFile(localFilePath string, userToken string) error {
 	bucket, err := initStorage()
 	if err != nil {
 		return err
@@ -66,7 +67,7 @@ func UploadFile(filePath string, userToken string) error {
 	}
 
 	// Open the file
-	file, err := os.Open(filePath)
+	file, err := os.Open(localFilePath)
 	if err != nil {
 		return err
 	}
@@ -79,7 +80,7 @@ func UploadFile(filePath string, userToken string) error {
 	}
 
 	// Username will be folder name
-	dst := "y/file.txt"
+	dst := "y/" + file.Name()
 
 	// Create a writer
 	w := bucket.Object(dst).NewWriter(ctx)
@@ -98,6 +99,7 @@ func UploadFile(filePath string, userToken string) error {
 	return nil
 }
 
+// TODO: Redesign this better.
 func DownloadFile(objectPath string, localPath string) error {
 	bucket, err := initStorage()
 
