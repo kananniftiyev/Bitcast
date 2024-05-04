@@ -18,6 +18,7 @@ import (
 )
 
 // Build Google OAuth2.
+// TODO: Refactor Whole Code.
 
 var GoogleOauthConfig *oauth2.Config
 
