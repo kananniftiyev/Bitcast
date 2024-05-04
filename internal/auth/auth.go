@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -85,7 +86,9 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 		fmt.Println(err)
 	}
 
-	err = db.CreateNewUser(userInfo.GivenName, userInfo.Email, "123")
+	username := strings.ToLower(userInfo.GivenName) + strings.ToLower(userInfo.FamilyName)
+
+	err = db.CreateNewUser(username, userInfo.Email)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -101,7 +104,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 	fmt.Fprintf(w, "User info obtained successfully")
 }
 
-// TODO: Fix This fully.
+// TODO: Bug related to save_data.json begin on folder but user not begin in db.
 func LoginViaGoogle() {
 	token, err := utils.LoadToken()
 	if err == nil {

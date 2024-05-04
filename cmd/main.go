@@ -1,18 +1,16 @@
 package main
 
 import (
-	"fileguard/internal/storage/firebase"
-	"fmt"
-	"os"
+	"fileguard/internal/auth"
 )
 
 // Change folder path to test.
 const folderPath = `C:\Users\kenan\Desktop\test`
 
 func main() {
-	// auth.LoginViaGoogle()
+	auth.LoginViaGoogle()
 
-	f, err := os.Getwd()
+	/*f, err := os.Getwd()
 
 	storage, err := firebase.NewStorage()
 
@@ -23,5 +21,5 @@ func main() {
 	err = storage.DownloadFile("x/file.txt", f+"\\file.txt")
 	if err != nil {
 		fmt.Println(err)
-	}
+	}*/
 }

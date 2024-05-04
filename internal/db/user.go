@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (db *Database) CreateNewUser(username, email, hashed_password string) error {
+func (db *Database) CreateNewUser(username, email string) error {
 	query := db.Client.Collection("Users").Where("email", "==", email).Limit(1)
 	iter := query.Documents(db.ctx)
 	defer iter.Stop()
@@ -31,7 +31,6 @@ func (db *Database) CreateNewUser(username, email, hashed_password string) error
 		"user_id":       userID,
 		"username":      username,
 		"email":         email,
-		"password":      hashed_password,
 		"creation_date": currentTime,
 	})
 
