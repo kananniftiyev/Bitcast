@@ -3,7 +3,6 @@ package db
 
 import (
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"google.golang.org/api/iterator"
 	"log"
@@ -43,50 +42,26 @@ func (db *Database) CreateNewUser(username, email string) error {
 
 func (db *Database) GetUserByID(userID string) (map[string]interface{}, error) {
 	// Get user document reference
-	query := db.Client.Collection("Users").Where("user_id", "==", userID).Limit(1)
-
-	// Execute the query
-	iter := query.Documents(db.ctx)
-	defer iter.Stop()
-
-	// Retrieve the first document from the query result
-	doc, err := iter.Next()
-	if err == iterator.Done {
-		return nil, fmt.Errorf("user with ID %s not found", userID)
-	}
+	doc, err := db.getRecord("Users", "user_id", userID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Extract user data from the document
-	userData := doc.Data()
-
-	return userData, nil
+	return doc.Data(), nil
 }
 
-func (db *Database) DeleteUserByID(userID string) {
-	query := db.Client.Collection("Users").Where("user_id", "==", userID).Limit(1)
-
-	iter := query.Documents(db.ctx)
-	defer iter.Stop()
-
-	doc, err := iter.Next()
-
-	if err == iterator.Done {
-		log.Fatal("user with ID %s not found", userID)
-		return
-	}
+func (db *Database) DeleteUserByID(userID string) error {
+	doc, err := db.getRecord("Users", "user_id", userID)
 	if err != nil {
 		log.Fatalf("Error getting user: %v", err)
-		return
+		return err
 	}
 
-	// Delete the user document
-	_, err = doc.Ref.Delete(db.ctx)
-	if err != nil {
+	if _, err = doc.Ref.Delete(db.ctx); err != nil {
 		log.Fatalf("Error deleting user: %v", err)
-		return
+		return err
 	}
 
-	log.Println("User Deleted")
+	return nil
+
 }

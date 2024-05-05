@@ -4,10 +4,8 @@ package db
 
 import (
 	"cloud.google.com/go/firestore"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"google.golang.org/api/iterator"
 	"os"
 	"time"
 )
@@ -38,41 +36,21 @@ func (db *Database) CreateNewFileRecord(f *os.File, userID string) error {
 
 // TODO: Query code is same for user and file so move it to utils.
 func (db *Database) GetFileRecordById(fileID string) (map[string]interface{}, error) {
-	query := db.Client.Collection("Files").Where("file_id", "==", fileID).Limit(1)
-
-	iter := query.Documents(db.ctx)
-	defer iter.Stop()
-
-	doc, err := iter.Next()
-
-	if err == iterator.Done {
-		return nil, errors.New("File record not found.")
-	}
+	doc, err := db.getRecord("Files", "file_id", fileID)
 	if err != nil {
 		return nil, err
 	}
 
-	return doc.Data(), err
+	return doc.Data(), nil
 }
 
 func (db *Database) DeleteFileRecordById(fileID string) error {
-	query := db.Client.Collection("Files").Where("file_id", "==", fileID).Limit(1)
-
-	iter := query.Documents(db.ctx)
-	defer iter.Stop()
-
-	doc, err := iter.Next()
-
-	if err == iterator.Done {
-		return errors.New("File record not found.")
-	}
+	doc, err := db.getRecord("Files", "file_id", fileID)
 	if err != nil {
 		return err
 	}
 
-	_, err = doc.Ref.Delete(db.ctx)
-
-	if err != nil {
+	if _, err = doc.Ref.Delete(db.ctx); err != nil {
 		return err
 	}
 
@@ -80,16 +58,7 @@ func (db *Database) DeleteFileRecordById(fileID string) error {
 }
 
 func (db *Database) UpdateFileRecordById(fileID string, newData map[string]interface{}) error {
-	query := db.Client.Collection("Files").Where("file_id", "==", fileID).Limit(1)
-
-	iter := query.Documents(db.ctx)
-	defer iter.Stop()
-
-	doc, err := iter.Next()
-
-	if err == iterator.Done {
-		return errors.New("File record not found.")
-	}
+	doc, err := db.getRecord("Files", "file_id", fileID)
 	if err != nil {
 		return err
 	}
@@ -100,9 +69,7 @@ func (db *Database) UpdateFileRecordById(fileID string, newData map[string]inter
 		updates = append(updates, update)
 	}
 
-	_, err = doc.Ref.Update(db.ctx, updates)
-
-	if err != nil {
+	if _, err = doc.Ref.Update(db.ctx, updates); err != nil {
 		return err
 	}
 

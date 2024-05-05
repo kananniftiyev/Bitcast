@@ -6,6 +6,8 @@ import (
 	"context"
 	"fileguard/utils"
 	firebase "firebase.google.com/go"
+	"fmt"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"log"
 	"regexp"
@@ -34,4 +36,18 @@ func NewDatabase() (*Database, error) {
 
 	return &Database{Client: client, ctx: ctx}, nil
 
+}
+
+func (db *Database) getRecord(collectionName, fieldName, value string) (*firestore.DocumentSnapshot, error) {
+	query := db.Client.Collection(collectionName).Where(fieldName, "==", value).Limit(1)
+	iter := query.Documents(db.ctx)
+	defer iter.Stop()
+	doc, err := iter.Next()
+	if err == iterator.Done {
+		return nil, fmt.Errorf("%s record not found", collectionName)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return doc, nil
 }
