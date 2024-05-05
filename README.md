@@ -6,23 +6,27 @@ Fileguard is a secure file backup utility, facilitating encrypted transfers from
 
 ## Features
 
-Soon...
+- Automatically backup files in your chosen folder at regular intervals 🔄.
+- Track and log all database modifications 📝.
+- Use Google OAuth2 for secure and convenient login 🔒.
+- Select either Firebase or your personal Google Drive account for file storage 🗃️.
 
 ## Roadmap
 
 ### Core Functionality
 
-- [ ] Implement basic file backup functionality
+- [x] Implement basic file backup functionality
 - [ ] Add support for encrypted transfers
 - [ ] Implement customizable settings for backup frequency and retention policies
 - [ ] Enable configuration of designated folders and servers
 - [ ] Database for recording changes ect
 - [ ] CLI Interface
 - [ ] Auth System.
+- [ ] Tests
+
 
 ### Additional Features
 
-- [ ] Tests
 - [ ] GUI
 - [ ] Monitoring and Analytics
 - [ ] Integration with External Services
