@@ -4,7 +4,6 @@ package db
 
 import (
 	"cloud.google.com/go/firestore"
-	"fmt"
 	"github.com/google/uuid"
 	"os"
 	"time"
@@ -18,6 +17,7 @@ func (db *Database) CreateNewFileRecord(f *os.File, userID string) error {
 		return err
 	}
 
+	// TODO: bytes, MB, what fix it.
 	w := map[string]interface{}{
 		"file_id":       uuid.New().String(),
 		"file_name":     f.Name(),
@@ -26,11 +26,10 @@ func (db *Database) CreateNewFileRecord(f *os.File, userID string) error {
 		"user_id":       userID,
 		"last_modified": fileInfo.ModTime(),
 	}
-	_, r, err := db.Client.Collection("Files").Add(db.ctx, w)
+	_, _, err = db.Client.Collection("Files").Add(db.ctx, w)
 	if err != nil {
 		return err
 	}
-	fmt.Println(r)
 	return nil
 }
 

@@ -5,6 +5,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"errors"
+	"fileguard/internal/db"
 	"fileguard/utils"
 	firebase "firebase.google.com/go"
 	"fmt"
@@ -20,6 +21,7 @@ import (
 // Add Google Drive and firebase storage
 // Give users choice to either implement their own google drive or use firebase storage by us.
 // 200MB each user for firebase storage.
+// TODO: Fix all Params of func. and whole file name ect.
 
 const maxFolderSize = 200 * 1024 * 1024
 
@@ -99,6 +101,16 @@ func (s *Storage) UploadFile(localFilePath string, userToken string) error {
 		return err
 	}
 
+	db, err := db.NewDatabase()
+	if err != nil {
+		return err
+	}
+
+	err = db.CreateNewFileRecord(file, "123")
+
+	if err != nil {
+		return err
+	}
 	log.Println("File uploaded successfully!")
 	return nil
 }
