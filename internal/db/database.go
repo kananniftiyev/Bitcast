@@ -4,12 +4,9 @@ package db
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"fileguard/utils"
-	firebase "firebase.google.com/go"
+	"fileguard/internal/common"
 	"fmt"
 	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
-	"log"
 	"regexp"
 )
 
@@ -21,12 +18,9 @@ type Database struct {
 }
 
 func NewDatabase() (*Database, error) {
-	ctx := context.Background()
-	sa := option.WithCredentialsFile(utils.FirebaseCredentialsFile)
-	conf := &firebase.Config{ProjectID: "fileguard-cf4d3"}
-	app, err := firebase.NewApp(ctx, conf, sa)
+	app, ctx, err := common.GetFirebaseApp()
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 
 	client, err := app.Firestore(ctx)
@@ -35,7 +29,6 @@ func NewDatabase() (*Database, error) {
 	}
 
 	return &Database{Client: client, ctx: ctx}, nil
-
 }
 
 func (db *Database) getRecord(collectionName, fieldName, value string) (*firestore.DocumentSnapshot, error) {

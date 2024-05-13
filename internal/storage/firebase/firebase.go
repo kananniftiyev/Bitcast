@@ -5,12 +5,10 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"errors"
+	"fileguard/internal/common"
 	"fileguard/internal/db"
-	"fileguard/utils"
-	firebase "firebase.google.com/go"
 	"fmt"
 	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
 	"io"
 	"io/ioutil"
 	"log"
@@ -30,21 +28,13 @@ type Storage struct {
 	Context context.Context
 }
 
-// TODO: This code is same as database init. Fix it.
 func NewStorage() (*Storage, error) {
-	config := &firebase.Config{
-		StorageBucket: "fileguard-cf4d3.appspot.com",
-	}
-
-	ctx := context.Background()
-
-	opt := option.WithCredentialsFile(utils.FirebaseCredentialsFile)
-	app, err := firebase.NewApp(ctx, config, opt)
+	app, ctx, err := common.GetFirebaseApp()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	client, err := app.Storage(context.Background())
+	client, err := app.Storage(ctx)
 	if err != nil {
 		return nil, err
 	}
