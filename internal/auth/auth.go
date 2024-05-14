@@ -4,6 +4,7 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fileguard/internal/db"
 	"fileguard/utils"
 	"fmt"
@@ -106,15 +107,15 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 }
 
 // TODO: Bug related to save_data.json begin on folder but user not begin in db.
-func LoginViaGoogle() {
+func LoginViaGoogle() (string, error) {
 	token, err := utils.LoadToken()
 	if err == nil {
 		if !utils.CheckExpirationDate(token) {
-			log.Fatal("Already Logged in")
+			return "", errors.New("Already Logged in")
 		} else {
 			err = utils.RemoveTokenFile()
 			if err != nil {
-				log.Fatal(err)
+				return "", err
 			}
 		}
 
@@ -142,5 +143,5 @@ func LoginViaGoogle() {
 	// Get the authorization URL
 	authURL := GoogleOauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 
-	fmt.Printf("Go to the following link in your browser: \n%v\n", authURL)
+	return authURL, nil
 }
