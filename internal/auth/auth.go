@@ -37,6 +37,7 @@ func init() {
 		Scopes:       []string{"openid", "email", "profile"},
 		Endpoint:     google.Endpoint,
 	}
+
 }
 
 type UserInfo struct {
@@ -91,11 +92,25 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 	username := strings.ToLower(userInfo.GivenName) + strings.ToLower(userInfo.FamilyName)
 
 	err = db.CreateNewUser(username, userInfo.Email)
+
+	// TODO: Finish This
+	if err == utils.ErrUserAlreadySigned {
+		err = nil
+		mp, err := db.GetUserByEmail(userInfo.Email)
+		createdToken := utils.GenerateToken(mp["user_id"].(string))
+		err = utils.SaveToken(createdToken)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
+	// TODO: Save by our id.
 	createdToken := utils.GenerateToken(userInfo.ID)
 	err = utils.SaveToken(createdToken)
 	if err != nil {
@@ -142,6 +157,8 @@ func LoginViaGoogle() (string, error) {
 
 	// Get the authorization URL
 	authURL := GoogleOauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+
+	fmt.Println(authURL)
 
 	return authURL, nil
 }

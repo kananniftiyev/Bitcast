@@ -33,7 +33,6 @@ func (db *Database) CreateNewFileRecord(f *os.File, userID string) error {
 	return nil
 }
 
-// TODO: Query code is same for user and file so move it to utils.
 func (db *Database) GetFileRecordById(fileID string) (map[string]interface{}, error) {
 	doc, err := db.getRecord("Files", "file_id", fileID)
 	if err != nil {

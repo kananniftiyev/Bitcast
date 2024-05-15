@@ -9,6 +9,8 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
+// TODO: Create function to check selected folder and sync with server.
+
 func WatchFolder(folderPath string) {
 	watcher, err := fsnotify.NewWatcher()
 
