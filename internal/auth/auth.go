@@ -91,7 +91,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 
 	username := strings.ToLower(userInfo.GivenName) + strings.ToLower(userInfo.FamilyName)
 
-	err = db.CreateNewUser(username, userInfo.Email)
+	userID, err := db.CreateNewUser(username, userInfo.Email)
 
 	// TODO: Finish This
 	if err == utils.ErrUserAlreadySigned {
@@ -110,8 +110,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 		return
 	}
 
-	// TODO: Save by our id.
-	createdToken := utils.GenerateToken(userInfo.ID)
+	createdToken := utils.GenerateToken(userID)
 	err = utils.SaveToken(createdToken)
 	if err != nil {
 		log.Fatal(err)
