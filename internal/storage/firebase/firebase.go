@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fileguard/internal/common"
 	"fileguard/internal/db"
+	"fileguard/utils"
 	"fmt"
 	"google.golang.org/api/iterator"
 	"io"
@@ -16,9 +17,6 @@ import (
 	"path/filepath"
 )
 
-// Add Google Drive and firebase storage
-// Give users choice to either implement their own google drive or use firebase storage by us.
-// 200MB each user for firebase storage.
 // TODO: Fix all Params of func. and whole file name ect.
 
 const maxFolderSize = 200 * 1024 * 1024
@@ -48,8 +46,7 @@ func NewStorage() (*Storage, error) {
 }
 
 // TODO: Detect file content difference.
-// TODO: Encode user infos from Google OAuth2
-func (s *Storage) UploadFile(localFilePath string, userToken string) error {
+func (s *Storage) UploadFile(localFilePath string, userToken utils.Token) error {
 	folderPath := "x"
 
 	totalFolderSize, err := s.GetFolderSize(folderPath)
@@ -96,7 +93,7 @@ func (s *Storage) UploadFile(localFilePath string, userToken string) error {
 		return err
 	}
 
-	err = db.CreateNewFileRecord(file, "123")
+	err = db.CreateNewFileRecord(file, userToken.UserID)
 
 	if err != nil {
 		return err

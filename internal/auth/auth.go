@@ -18,8 +18,6 @@ import (
 	"sync"
 )
 
-// TODO: Refactor Whole Code.
-
 var GoogleOauthConfig *oauth2.Config
 
 func init() {
@@ -119,7 +117,6 @@ func handleCallback(w http.ResponseWriter, r *http.Request, wg *sync.WaitGroup) 
 	fmt.Fprintf(w, "User info obtained successfully")
 }
 
-// TODO: Bug related to save_data.json begin on folder but user not begin in db.
 func LoginViaGoogle() (string, error) {
 	token, err := utils.LoadToken()
 	if err == nil {
