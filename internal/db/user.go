@@ -3,24 +3,25 @@ package db
 
 import (
 	"errors"
+	"fileguard/utils"
 	"github.com/google/uuid"
 	"google.golang.org/api/iterator"
 	"log"
 	"time"
 )
 
-func (db *Database) CreateNewUser(username, email string) error {
+func (db *Database) CreateNewUser(username, email string) (string, error) {
 	query := db.Client.Collection("Users").Where("email", "==", email).Limit(1)
 	iter := query.Documents(db.ctx)
 	defer iter.Stop()
 
 	_, err := iter.Next()
 	if err != iterator.Done {
-		return nil
+		return "", utils.ErrUserAlreadySigned
 	}
 
 	if !emailRegex.MatchString(email) {
-		return errors.New("Invalid email address")
+		return "", errors.New("Invalid email address")
 	}
 
 	currentTime := time.Now()
@@ -34,10 +35,10 @@ func (db *Database) CreateNewUser(username, email string) error {
 	})
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return userID, nil
 }
 
 func (db *Database) GetUserByID(userID string) (map[string]interface{}, error) {
@@ -47,6 +48,14 @@ func (db *Database) GetUserByID(userID string) (map[string]interface{}, error) {
 		return nil, err
 	}
 
+	return doc.Data(), nil
+}
+
+func (db *Database) GetUserByEmail(email string) (map[string]interface{}, error) {
+	doc, err := db.getRecord("Users", "email", email)
+	if err != nil {
+		return nil, err
+	}
 	return doc.Data(), nil
 }
 

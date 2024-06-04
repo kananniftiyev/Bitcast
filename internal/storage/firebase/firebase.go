@@ -5,12 +5,11 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"errors"
+	"fileguard/internal/common"
 	"fileguard/internal/db"
 	"fileguard/utils"
-	firebase "firebase.google.com/go"
 	"fmt"
 	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
 	"io"
 	"io/ioutil"
 	"log"
@@ -18,9 +17,6 @@ import (
 	"path/filepath"
 )
 
-// Add Google Drive and firebase storage
-// Give users choice to either implement their own google drive or use firebase storage by us.
-// 200MB each user for firebase storage.
 // TODO: Fix all Params of func. and whole file name ect.
 
 const maxFolderSize = 200 * 1024 * 1024
@@ -30,21 +26,13 @@ type Storage struct {
 	Context context.Context
 }
 
-// TODO: This code is same as database init. Fix it.
 func NewStorage() (*Storage, error) {
-	config := &firebase.Config{
-		StorageBucket: "fileguard-cf4d3.appspot.com",
-	}
-
-	ctx := context.Background()
-
-	opt := option.WithCredentialsFile(utils.FirebaseCredentialsFile)
-	app, err := firebase.NewApp(ctx, config, opt)
+	app, ctx, err := common.GetFirebaseApp()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	client, err := app.Storage(context.Background())
+	client, err := app.Storage(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +46,7 @@ func NewStorage() (*Storage, error) {
 }
 
 // TODO: Detect file content difference.
-// TODO: Encode user infos from Google OAuth2
-func (s *Storage) UploadFile(localFilePath string, userToken string) error {
+func (s *Storage) UploadFile(localFilePath string, userToken utils.Token) error {
 	folderPath := "x"
 
 	totalFolderSize, err := s.GetFolderSize(folderPath)
@@ -106,7 +93,7 @@ func (s *Storage) UploadFile(localFilePath string, userToken string) error {
 		return err
 	}
 
-	err = db.CreateNewFileRecord(file, "123")
+	err = db.CreateNewFileRecord(file, userToken.UserID)
 
 	if err != nil {
 		return err

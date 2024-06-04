@@ -4,5 +4,4 @@ package main
 const folderPath = `C:\Users\kenan\Desktop\test`
 
 func main() {
-
 }

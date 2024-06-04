@@ -18,6 +18,7 @@ const FirebaseCredentialsFile = "C:/Users/kenan/Documents/GitHub/fileguard/fileg
 
 // Custom Errors
 var ErrUserAlreadyExists = errors.New("User Already exists")
+var ErrUserAlreadySigned = errors.New("User Already signed.")
 
 // Token represents an authentication token
 type Token struct {
@@ -77,6 +78,7 @@ func LoadToken() (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &token, nil
 }
 
