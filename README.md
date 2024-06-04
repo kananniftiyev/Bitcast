@@ -2,7 +2,7 @@
 
 Fileguard is a secure file backup utility, facilitating encrypted transfers from designated folders to specified servers, with customizable settings for seamless data protection and management.
 
-[![Go Version](https://img.shields.io/badge/Go-v1.21-%231D272B?logo=go&logoColor=00ADD8&color=00ADD8&labelColor=1D272B)](https://golang.org/) [![Project Version](https://img.shields.io/badge/project%20version-v0.4.0-%231D272B?color=00ADD8&labelColor=1D272B)](https://github.com/user/repo/releases/tag/v1.0) [![Platform Support](https://img.shields.io/badge/platform-windows-%231D272B?color=00ADD8&labelColor=1D272B)](https://shields.io/) [![Last Commit](https://img.shields.io/github/last-commit/kananniftiyev/fileguard?color=00ADD8&labelColor=1D272B)](https://github.com/user/repo/commits/master) [![License](https://img.shields.io/github/license/kananniftiyev/fileguard?color=00ADD8&labelColor=1D272B)](https://github.com/user/repo/blob/master/LICENSE)
+[![Go Version](https://img.shields.io/badge/Go-v1.21-%231D272B?logo=go&logoColor=00ADD8&color=00ADD8&labelColor=1D272B)](https://golang.org/) [![Project Version](https://img.shields.io/badge/project%20version-v0.3.1-%231D272B?color=00ADD8&labelColor=1D272B)](https://github.com/user/repo/releases/tag/v1.0) [![Platform Support](https://img.shields.io/badge/platform-windows-%231D272B?color=00ADD8&labelColor=1D272B)](https://shields.io/) [![Last Commit](https://img.shields.io/github/last-commit/kananniftiyev/fileguard?color=00ADD8&labelColor=1D272B)](https://github.com/user/repo/commits/master) [![License](https://img.shields.io/github/license/kananniftiyev/fileguard?color=00ADD8&labelColor=1D272B)](https://github.com/user/repo/blob/master/LICENSE)
 
 ## Features
 
